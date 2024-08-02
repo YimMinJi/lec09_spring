@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardMapper">
+
+	<!-- 페이징중0801, +검색조건 추가할때 option 매개변수 넣고 값넣어줘 -->
+	<select id = "selectBoardCount" resultType = "int" parameterType = "com.gn.spring.board.model.vo.Board">
+		SELECT COUNT(*)
+		FROM `board`
+		<if test= 'search_text != null and search_text.equals("") == false'>
+			<where>
+		
+			<choose><!-- 제목 + 내용 -->
+			<!-- 만약 랩퍼타입으로 받아드리기때문에, not null 체크 꼭해줘야한다
+			 -->
+				<when test = 'search_type != null and search_type == 1'>
+					board_title LIKE CONCAT('%',#{search_text},'%')
+				</when>
+				<when test = 'search_type != null and search_type == 2'>
+					board_content LIKE CONCAT('%',#{search_text},'%')
+				</when>
+				<otherwise>
+					board_title LIKE CONCAT('%',#{search_text},'%')
+					OR board_content LIKE CONCAT('%',#{search_text},'%')
+				</otherwise>
+			</choose>
+			</where>
+		</if>
+	</select>
+	
+	<!--목록조회  -->
+	<select id = "selectBoardList"
+	resultType = "com.gn.spring.board.model.vo.Board"
+	parameterType = "com.gn.spring.board.model.vo.Board">
+		SELECT *
+		FROM `board`
+		<if test= 'search_text != null and search_text.equals("") == false'>
+		<where>
+		<!-- 첫번째 추가 0730 조건이추가되는거야, 타이틀이 null이 아닐때, WHERE추가-->
+		<!-- 제목을 기준으로 검색한거야 -->
+			<!-- <if test='board_title != null and board_title.equals("")==false'>
+				AND board_title LIKE CONCAT('%',#{board_title},'%')
+			</if> -->
+			<choose><!-- 제목 + 내용 -->
+			<!-- 만약 맵퍼타입으로 받아드리기때문에, not null 체크 꼭해줘야한다
+			 -->
+				<when test = 'search_type != null and search_type == 1'>
+					board_title LIKE CONCAT('%',#{search_text},'%')
+				</when>
+				<when test = 'search_type != null and search_type == 2'>
+					board_content LIKE CONCAT('%',#{search_text},'%')
+				</when>
+				<otherwise>
+					board_title LIKE CONCAT('%',#{search_text},'%')
+					OR board_content LIKE CONCAT('%',#{search_text},'%')
+				</otherwise>
+			</choose>
+		</where>
+		</if>
+		LIMIT #{limitPageNo}, #{numPerPage}
+	</select>
+</mapper>
