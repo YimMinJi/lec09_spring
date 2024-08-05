@@ -18,9 +18,48 @@
 	</http> -->
 	
 	<!--0805 스프링 시큐리티중  -->
+	<!--우리가 스프링 시큐리티를 적용할건데, 적용제외 대상 url을 설정해줄거야  -->
+	<!--최초 진입페이지엔 필터를 걸을 필요가 없다  -->
+	<!-- <http pattern = "/" security="none"></http>
+	<http pattern = "/resources/**" security="none"></http> -->
+	
 	<http auto-config="true" use-expressions="true">
+		<intercept-url pattern="/" access="permitAll()"/>
+		<intercept-url pattern="/resources/**" access="permitAll()"/>
 		<intercept-url pattern="/board/**" access = "isAuthenticated()" />
+		<intercept-url pattern="/join" access="permitAll()"/>
+	<!--
+		 * 로그인페이지 관련 속성 설정 ==> <http>태그 안에 들어가야한다. 
+		login-page : 로그인 화면 전환 url을 적어주면된다.
+		login-processing-url : 로그인 기능 url(default가 "슬래시로그인" /login)
+		username-parameter : 로그인시에 전송되는 아이디 name값 == 폼태그에 적어놓은 name값
+		password-parameter : 로그인시에 전송되는 비밀번호 name값 == 폼태그에 적어놓은 name값 
+		default-target-url : 로그인 성공시 이동할 url 
+		authentication-failure-url : 로그인 실패시 이동할 url 설정
+	  -->
+	  <form-login 
+	  	login-page="/loginPage"
+	  	username-parameter="user_id"
+	  	password-parameter="user_pw"
+	  	default-target-url="/"
+	  	authentication-failure-url="/loginPage"
+	  	/>
+	  	<!--로그아웃 관련 설정,따로 페이지없으니까 착각 ㄴ
+	  		logout-url : 로그아웃 페이지 url 설정
+	  		logout-success-url : 로그아웃 성공시 이동할 url 설정
+	  		invalidate-session : 로그아웃 성공시 세션의 연결을 끊을지 말지 설정하게 해주는애
+	  		delete-cookie : 로그아웃 성공시 삭제할 쿠키의 이름 설정
+	  		
+	  	 -->
+	  	 <logout
+	  	 logout-url="/logout"
+	  	 logout-success-url ="/"
+	  	 delete-cookies = "JESSIONID"
+	  	 />
 	</http>
+	
+	  	
+	  
 	<!-- 
 		* authentication-manager : authenticationManager 설정
 		authentication-provider : authenticationProvider 설정
@@ -36,4 +75,9 @@
 		</authentication-provider>
 	</authentication-manager>
 	
+	<beans:bean id="customHttpFirewall" 
+	class="org.springframework.security.web.firewall.StrictHttpFirewall">
+		<beans:property name="allowSemicolon" value ="true"/>
+	</beans:bean>
+	<http-firewall ref ="customHttpFirewall"/>
 </beans:beans>
